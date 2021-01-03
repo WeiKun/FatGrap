@@ -1,0 +1,11 @@
+{
+        "python.pythonPath": "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Anaconda2_64\\python.exe",
+        "python.linting.flake8Args": [
+                "--max-line-length=140",
+                "--ignore=E266, E402, E722, F403, F401, F405",//编号根据自己需要确定
+            ],
+
+        // "python.pythonPath": "D:\\Python27\\python.exe",
+        // "python.linting.pylintPath": "D:\\Python27\\Scripts\\pylint.exe",
+        // "python.linting.enabled": true,
+}
