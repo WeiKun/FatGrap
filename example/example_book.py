@@ -7,6 +7,7 @@ sys.path.append(abs_path)
 
 from common import *
 from common.download_quest import BookDownloadQuest, BookDownloadMession
+from common.download_quest_factory import DownloadQuestUrls
 
 global_var.set_var(
     DOWNLOAD_DIR='downloads/books/2021-01',
@@ -23,30 +24,8 @@ global_var.check()
 
 
 class BookTxtDownloadQuest(BookDownloadQuest):
-    def __init__(self, url):
-        self.url = url
-
-    def init(self):
-        self.bs = utils.download_bs(self.url)
-        self.name = self.get_name()
-        self.set_write_handle()
-
-    def set_write_handle(self, write_handle=utils.write_book):
-        self.write_handle = write_handle
-
     def get_name(self):
         return self.bs.find('meta', property='og:title').attrs['content'].encode(global_var.LOCAL_CODE)
-
-    def set_done(self, completed=1):
-        db_utils.XlsDB.write_row(
-            self.name, key=self.calc_key(), completed=completed)
-
-    def has_done(self):
-        key = self.calc_key()
-        if key and db_utils.XlsDB.read_column(self.name, 'key', None) == key:
-            return db_utils.XlsDB.read_column(self.name, 'completed', 0) == 1
-        else:
-            return False
 
     def calc_key(self):
         return self.bs.find('meta', property='og:novel:update_time').attrs['content'].encode(global_var.LOCAL_CODE)
@@ -73,21 +52,12 @@ class BookTxtDownloadQuest(BookDownloadQuest):
             messions.append(mession)
 
         messions = messions[:5]
+        # 测试时可以只取前几个mession，早点发现错误
         return messions
-
-    def mark_do(self):
-        print 'Doing Quest', self.name, self.url
 
 
 class BookTxtDownloadMession(BookDownloadMession):
     SHOULD_JOIN = False
-
-    def __init__(self, url, name):
-        self.url = url
-        self.name = name
-
-    def mark_do(self):
-        print 'Doing Mession', self.name, self.url
 
     def text(self):
         nodes = self.bs.find('div', id='content')
@@ -112,11 +82,19 @@ class BookTxtDownloadMession(BookDownloadMession):
 
 print 'TEST BEGIN'
 db_utils.XlsDB.init()
-quest = BookTxtDownloadQuest('https://www.booktxt.net/7_7810/')
-quest.init()
-quest.set_done(0)
-main_utils.main_multi_thread([
-    BookTxtDownloadQuest('https://www.booktxt.net/7_7810/'),
-    BookTxtDownloadQuest('https://www.booktxt.net/2_2096/'),
-])
+urs = [None for _ in xrange(1000)]
+
+urs[0] = '''
+https://www.booktxt.net/7_7810/
+'''
+
+urs[1] = '''
+https://www.booktxt.net/2_2096/
+'''
+
+urs[2] = '''
+'''
+
+main_utils.main_multi_thread(DownloadQuestUrls(BookTxtDownloadQuest, urs))
+
 print 'TEST END'
