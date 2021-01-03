@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/env python
 import sys
-sys.path.append('%s/../' % __file__[:__file__.rfind('/')])
+file_path = __file__.replace('\\', '/')
+abs_path = '%s/../' % file_path[:file_path.rfind('/')]
+sys.path.append(abs_path)
 
 from common import *
 from common.download_quest import BookDownloadQuest, BookDownloadMession
 
 global_var.set_var(
-    DOWNLOAD_DIR='example/',
+    DOWNLOAD_DIR='downloads/books/2021-01',
     XLSX_NAME='example.xlsx',
     XLSX_COLUMNS=['name', 'key', 'completed'],
     HTML_CODE='gbk',
@@ -16,8 +18,8 @@ global_var.set_var(
     DEBUG_MODE=0,
 )
 global_var.check()
-#db_utils.XlsDB.read_column('name', 'key', default)
-#db_utils.XlsDB.write_row('name', key='key', completed='completed')
+# db_utils.XlsDB.read_column('name', 'key', default)
+# db_utils.XlsDB.write_row('name', key='key', completed='completed')
 
 
 class BookTxtDownloadQuest(BookDownloadQuest):
@@ -109,20 +111,10 @@ class BookTxtDownloadMession(BookDownloadMession):
 
 
 print 'TEST BEGIN'
-# class Quest(object):
-#         def __init__(self, arg):
-#                 self.arg = arg
-
-#         def do(self):
-#                 print self.arg
-
-# main_utils.main_multi_thread([Quest(i) for i in xrange(100)])
 db_utils.XlsDB.init()
 quest = BookTxtDownloadQuest('https://www.booktxt.net/7_7810/')
 quest.init()
 quest.set_done(0)
-# quest.do()
-# main_utils.do_single_quest(quest)
 main_utils.main_multi_thread([
     BookTxtDownloadQuest('https://www.booktxt.net/7_7810/'),
     BookTxtDownloadQuest('https://www.booktxt.net/2_2096/'),
